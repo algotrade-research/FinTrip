@@ -78,6 +78,10 @@ class Metrics():
         pp = self.asset.groupby("start-date")["unrealized-asset"].apply(positive_percentage).reset_index().rename(columns={"unrealized-asset": "pp"}).rename(columns={"start-date": "date"})
         return pp
     
+    def monthly_return_df(self):
+        # monthly_return = 
+        pass
+    
     def expected_sharpe_portfolio(self):
         sharpe_df = self.sharpe_portfolio_df()
         return sharpe_df["sharpe-ratio"].mean()
@@ -130,7 +134,6 @@ if __name__ == "__main__":
 
     index_data = data_service.get_index_data(from_date, to_date)
     index_data = index_data.astype({"open": float, "close": float})
-0
 
     for key in keys:
         assets = pd.read_csv(f"stat/{key}_asset.csv")
