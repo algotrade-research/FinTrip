@@ -28,25 +28,25 @@ if __name__ == "__main__":
     financial_signal = FinancialSignal(financial_data)
     technical_signal = TechnicalSignal(daily_data)
 
-    print("Calculating Financial Signal...")
-    financial_factors = financial_signal.filter_median(["eps"])
     print("Calculating Technical Signal...")
-    technical_factors  = technical_signal.filter_signal([("liquidity", 20, 1e6, 5e6), ("rsi", 60, 0.2, 0.7)])
+    technical_factors  = technical_signal.filter_signal([("liquidity", 20, 1e6, 5e6), ("rsi", 60, 0.6, 0.7)])
 
-    top = 3
-    signal_factors = merging([technical_factors, financial_factors], columns=["year", "quarter", "tickersymbol"])
-    sorted_signal_factors = signal_factors.sort_values(by=["date", "rsi", "tickersymbol"], ascending=[True, False, True]).groupby("date").head(top)
-    portfolio = sorted_signal_factors[["date", "tickersymbol"]].copy()
-    portfolio.to_csv("stat/portfolio.csv", index=False) 
+    print("Calculating Financial Signal...")
+    keys = ["eps", "quick-ratio", "gm", "roe", "turnover-inv", "combine"]
+    for key in keys:
+        financial_factors = financial_signal.filter_median([key]) if key != "combine" else financial_signal.filter_median(["turnover-inv", "quick-ratio", "gm"])
 
-    in_sample_from_date = datetime.strptime("2017-01-01", "%Y-%m-%d").date()
-    in_sample_to_date = datetime.strptime("2019-01-01", "%Y-%m-%d").date()
-    in_sample_portfolios = portfolio[portfolio["date"].between(in_sample_from_date, in_sample_to_date)]
-    bt = Backtesting(in_sample_portfolios, daily_data, 60, 3)
-    print("Backtesting...")
-    assets = bt.strategy(amt_each_stock=2e4)
-    assets.to_csv("stat/asset.csv", index=False)
+        top = 3
+        signal_factors = merging([technical_factors, financial_factors], columns=["year", "quarter", "tickersymbol"])
+        sorted_signal_factors = signal_factors.sort_values(by=["date", "rsi", "tickersymbol"], ascending=[True, False, True]).groupby("date").head(top)
+        portfolio = sorted_signal_factors[["date", "tickersymbol"]].copy()
 
-    metrics = Metrics(asset=assets, index_asset=index_data)
-    sharpe_df = metrics.sharpe_df()
-    print("sharpe mean", sharpe_df["sharpe-ratio"].mean())
+        in_sample_from_date = datetime.strptime("2017-01-01", "%Y-%m-%d").date()
+        in_sample_to_date = datetime.strptime("2019-01-01", "%Y-%m-%d").date()
+
+        in_sample_portfolios = portfolio[portfolio["date"].between(in_sample_from_date, in_sample_to_date)]
+        bt = Backtesting(in_sample_portfolios, daily_data, 60, 3)
+        print("Backtesting...")
+        assets = bt.strategy(amt_each_stock=2e4)
+        assets.to_csv(f"stat/{key}_asset.csv", index=False)
+       

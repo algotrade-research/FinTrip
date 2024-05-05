@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 class Backtesting():
-    def __init__(self, portfolio, daily_data, period, no_firms, buy_fee = 0.0015, sell_fee = 0.0025):
+    def __init__(self, portfolio, daily_data, period, no_firms, buy_fee = 0.0006, sell_fee = 0.0006):
         self.portfolio = portfolio
         self.daily_data = daily_data
         self.period = period
@@ -25,14 +25,14 @@ class Backtesting():
                     continue
 
                 unrealized_pnl = firm["amt"] * (price - firm["current"])
-                if firm["counter"] == 0:
+                if firm["counter"] == 1:
                     realized_pnl = firm["amt"] * price
                     self.unrealized_assets[d] += unrealized_pnl - self.sell_fee * realized_pnl
                     self.end.append({"date": d, "index": index})
                     self.assets.append([d, updating_date, tickersymbol, firm["amt"], price, self.unrealized_assets[d]])
                     continue
 
-                if firm["counter"] > 0:
+                if firm["counter"] > 1:
                     firm["counter"] -= 1
                     self.unrealized_assets[d] += unrealized_pnl
                     firm["current"] = price
@@ -53,8 +53,8 @@ class Backtesting():
         return self.inv, self.end
 
 
-    def _buy(self, amt_each_stock, buying_date, tickersymbol, price):
-        no_stock = int (amt_each_stock / ((1 + self.buy_fee) * price * 100))
+    def _buy(self, amt_stock, buying_date, tickersymbol, price):
+        no_stock = int (amt_stock / ((1 + self.buy_fee) * price * 100))
 
         if no_stock >= 1:
             no_stock *= 100
@@ -69,7 +69,7 @@ class Backtesting():
         prices = self.daily_data[["date", "tickersymbol", "close"]].copy()
 
         portfolio["holding-period"] = [self.period] * len(portfolio)
-        prices = pd.merge(portfolio, prices, on=["date", "tickersymbol"], how="right").replace({np.nan: None})
+        prices = pd.merge(portfolio, prices, on=["date", "tickersymbol"], how="right").replace({np.nan: None}).sort_values(by=["date", "tickersymbol"])
 
         data = []
         count = {}
@@ -92,7 +92,6 @@ class Backtesting():
     def strategy(self, amt_each_stock):
         self._init_data()
         prices = self.price()
-        prices.to_csv("prices.csv", index=False)
 
         date, tickersymbol, close, buy = zip(*prices.values)
 

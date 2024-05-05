@@ -24,7 +24,7 @@ class FinancialSignal():
         receivable = self.data[self.data["code"] == 1300].copy().rename(columns={"value": "receivable"}).drop(columns=['code'])
         liabilities = self.data[self.data["code"] == 3100].copy().rename(columns={"value": "liabilities"}).drop(columns=['code'])
 
-        quick_ratio = merging([cash, receivable, liabilities])
+        quick_ratio = merging([cash, receivable, liabilities], columns=["year", "quarter", "tickersymbol"])
         quick_ratio = pd.merge(quick_ratio, investment, on=["year", "quarter", "tickersymbol"], how='left').sort_values(by=["year", "quarter"])
 
         quick_ratio["investment"] = quick_ratio["investment"].fillna(0)
@@ -65,6 +65,7 @@ class FinancialSignal():
         turnover_inventory = turnover_inventory[["year", "quarter", "tickersymbol", "turnover-inv"]].dropna()
         return turnover_inventory
     
+
     def get_signal(self, signal):
        if signal == "eps":
            return self.eps()
@@ -76,6 +77,7 @@ class FinancialSignal():
            return self.roe()
        if signal == "turnover-inv":
            return self.turnover_inventory()
+    
     
     def filter_median(self, signals):
         signal_data = []
