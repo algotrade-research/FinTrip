@@ -95,10 +95,7 @@ class Backtesting():
 
         date, tickersymbol, close, buy = zip(*prices.values)
 
-        current_date = date[0]
-        self.unrealized_assets[date[0]] = amt_each_stock * self.no_firms
-        self.inv[date[0]] = []
-
+        current_date = None
         for i in range(len(date)):
             if current_date != date[i]:
                 current_date = date[i]
