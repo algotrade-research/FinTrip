@@ -4,7 +4,6 @@ import pandas.testing as pd_testing
 from filters.financial import *
 import unittest
 
-
 class TestFinancial(unittest.TestCase):
     def setUp(self) -> None:
         financial_data = pd.read_csv("mock/financial_data.csv")

@@ -15,28 +15,39 @@ class TechnicalSignal():
             liq_data = liq_data[["year", "quarter", "date", "tickersymbol", "median-liq"]].copy()
             return liq_data
 
-        if high is None and low is not None:
+        elif high is None and low is not None:
             liq_data = liq_data[(liq_data["median-liq"] >= low)]
             liq_data = liq_data[["year", "quarter", "date", "tickersymbol", "median-liq"]].copy()
             return liq_data
 
-        if high is not None and low is None:
+        elif high is not None and low is None:
             liq_data = liq_data[(liq_data["median-liq"] <= high)]
             liq_data = liq_data[["year", "quarter", "date", "tickersymbol", "median-liq"]].copy()
             return liq_data
 
-        return None
+        return liq_data[["year", "quarter", "date", "tickersymbol", "median-liq"]].copy()
     
 
     def ewm_rsi(self, window, low, high):
-        def calculate_rsi(df, period):
+        def ewm(prices):
+            ret = 0
+            alpha = 1 - 1 / window
+            multiplier = 1
+            divider = 0
+            for price in prices.iloc[::-1]:
+                ret += price * multiplier
+                divider += multiplier
+                multiplier *= alpha
+            
+            return ret / divider
+            
+        def calculate_rsi(df):
             delta = df.diff()
             gain = delta.where(delta > 0, 0)
             loss = -delta.where(delta < 0, 0)
 
-            avg_gain = gain.ewm(com=period - 1, min_periods=period).mean()
-            avg_loss = loss.ewm(com=period - 1, min_periods=period).mean()
-
+            avg_gain = gain.rolling(window).apply(ewm)
+            avg_loss = loss.rolling(window).apply(ewm)
             rs = avg_gain / avg_loss
             rsi = 1 - (1 / (1 + rs))
             return rsi
@@ -44,14 +55,22 @@ class TechnicalSignal():
         rsi = self.data.groupby("tickersymbol")["close"]
         data = None
         for _, group in rsi:
-            rsi_series = calculate_rsi(group, window)
+            rsi_series = calculate_rsi(group)
             rsi_series = rsi_series.shift(1)
             data = rsi_series if data is None else pd.concat([data, rsi_series])
 
         rsi_data = self.data.copy()
         rsi_data["rsi"] = data.round(2)
         rsi_data = rsi_data.dropna()
-        rsi_data = rsi_data[rsi_data["rsi"].between(low, high)]
+
+        if high is not None and low is not None:
+            rsi_data = rsi_data[rsi_data["rsi"].between(low, high)]
+
+        elif high is None and low is not None:
+            rsi_data = rsi_data[rsi_data["rsi"] >= low]
+        
+        elif high is not None and low is None:
+            rsi_data = rsi_data[rsi_data["rsi"] <= high]
 
         rsi_data = rsi_data[["year", "quarter", "date", "tickersymbol", "rsi"]].copy()
         return rsi_data

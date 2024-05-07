@@ -136,7 +136,7 @@ if __name__ == "__main__":
     index_data = index_data.astype({"open": float, "close": float})
 
     for key in keys:
-        assets = pd.read_csv(f"stat/{key}_asset.csv")
+        assets = pd.read_csv(f"stat/asset/{key}_asset.csv")
         assets["start-date"] = pd.to_datetime(assets["start-date"]).dt.date
         assets["curr-date"] = pd.to_datetime(assets["curr-date"]).dt.date
         metrics = Metrics(asset=assets, index_data=index_data)

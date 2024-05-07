@@ -49,4 +49,4 @@ if __name__ == "__main__":
         print("Backtesting...")
         assets = bt.strategy(amt_each_stock=2e4)
         assets.to_csv(f"stat/asset/{key}_asset.csv", index=False)
-       
+        
