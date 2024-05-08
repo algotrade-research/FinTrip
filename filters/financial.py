@@ -2,7 +2,7 @@ import pandas as pd
 
 from util.utils import *
 
-class FinancialSignal():
+class FinancialSignal:
     def __init__(self, data: pd.DataFrame) -> None:
         self.data = data
 

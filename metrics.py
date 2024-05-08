@@ -4,7 +4,7 @@ from data.service import *
 from util.visualization import *
 from util.metric_func import *
 
-class Metrics():
+class Metrics:
     def __init__(self, asset, index_data = None, index_window = 61):
         self.index_data = index_data
         self.index_window = index_window
@@ -89,7 +89,7 @@ class Metrics():
         i_positive = len(index[index["pp-index"] > 0]) / len(index)
         p_positive = len(portfolio[portfolio["pp"] > 0]) / len(portfolio)
         
-        return i_positive, p_positive
+        return 100 * i_positive, 100 * p_positive
     
     def ar_portfolio_df(self):
         ar = self.asset.groupby("start-date")["unrealized-asset"].apply(absolute_return).reset_index().rename(columns={"unrealized-asset": "ar"}).rename(columns={"start-date": "date"})
@@ -108,8 +108,16 @@ class Metrics():
         portfolio = self.ar_portfolio_df()
         index = self.ar_index_df()
 
-        return index["ar-index"].min(), index["ar-index"].max(), portfolio["ar"].min(), portfolio["ar"].max()
+        min_index =  index["ar-index"].min()
+        max_index = index["ar-index"].max()
+        mean_index = index["ar-index"].mean()
     
+        min_portfolio =  portfolio["ar"].min()
+        max_portfolio = portfolio["ar"].max()
+        mean_portfolio = portfolio["ar"].mean()
+        
+        return min_index, max_index, mean_index, min_portfolio, max_portfolio, mean_portfolio
+
     def visualize_ar(self, path):
         portfolio = self.ar_portfolio_df()
         index = self.ar_index_df()
@@ -183,12 +191,13 @@ if __name__ == "__main__":
         esi, esp = metrics.expected_sharpe()
         mi, mp = metrics.max_mdd()
         ip, pp = metrics.pp(benchmark=0.05)
-        ar_index_min, ar_index_max, ar_portfolio_min, ar_portfolio_max = metrics.ar()
+        ar_index_min, ar_index_max, ar_index_mean, ar_portfolio_min, ar_portfolio_max, ar_portfolio_mean = metrics.ar()
         monthly_return_index, monthly_return_portfolio = metrics.monthly_return()
 
         print(key)
         print("sharpe index", esi, "sharpe portfolio", esp)
         print("max mdd index", mi, "max mdd index", mp)
         print("positive percentage index", ip, "positive percentage porfolio", pp)
-        print("min - max absolute retrun index", ar_index_min, ar_index_max, "min - max absolute return portfolio", ar_portfolio_min, ar_portfolio_max)
+        print("min, max, mean absolute retrun index", ar_index_min, ar_index_max, ar_index_mean)
+        print("min, max, mean absolute retrun portfolio", ar_portfolio_min, ar_portfolio_max, ar_portfolio_mean)
         print("monthly return index", monthly_return_index, "monthly return portfolio", monthly_return_portfolio)

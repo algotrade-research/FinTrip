@@ -2,7 +2,7 @@ import pandas as pd
 
 from util.utils import *
 
-class TechnicalSignal():
+class TechnicalSignal:
     def __init__(self, data) -> None:
         self.data = data
 

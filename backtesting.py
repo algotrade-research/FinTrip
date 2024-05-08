@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-class Backtesting():
+class Backtesting:
     def __init__(self, portfolio, daily_data, period, no_firms, buy_fee = 0.0006, sell_fee = 0.0006):
         self.portfolio = portfolio
         self.daily_data = daily_data

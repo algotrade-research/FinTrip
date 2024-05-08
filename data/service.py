@@ -5,7 +5,7 @@ from data.query import *
 from config.config import *
 
 
-class DataService():
+class DataService:
     def __init__(self) -> None:
         self.connection = psycopg2.connect(**db_params)
         
