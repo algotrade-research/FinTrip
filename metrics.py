@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 
 from data.service import *
@@ -163,9 +164,11 @@ class Metrics:
         return count
 
 if __name__ == "__main__":
-    keys = ["eps", "gm", "quick-ratio", "roe", "turnover-inv", "combine"]
-    for key in keys:
-        assets = pd.read_csv(f"stat/asset/{key}_asset.csv")
+    path = os.path.join(os.path.dirname(__file__), 'stat/asset')
+    files = [os.path.splitext(file)[0] for file in os.listdir(path)]
+
+    for key in files:
+        assets = pd.read_csv(f"stat/asset/{key}.csv")
         assets["start-date"] = pd.to_datetime(assets["start-date"]).dt.date
         assets["curr-date"] = pd.to_datetime(assets["curr-date"]).dt.date
         assets = assets.sort_values(by=["start-date", "curr-date"])
@@ -183,7 +186,7 @@ if __name__ == "__main__":
         ar_visualization = metrics.visualize_ar(path=f"stat/ar/{key}.png")
         
         # no stocks
-        portfolio = pd.read_csv(f"stat/portfolio/{key}_portfolio.csv")
+        portfolio = pd.read_csv(f"stat/portfolio/{key}.csv")
         portfolio["date"] = pd.to_datetime(portfolio["date"]).dt.date
         no_stocks = metrics.no_stocks(portfolio, path=f"stat/no-stocks/{key}.png")
 

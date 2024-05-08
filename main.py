@@ -1,7 +1,6 @@
-from datetime import datetime
-
 from data.service import *
 from util.constant import INCLUDED_CODES
+from util.utils import *
 from filters.financial import *
 from filters.technical import *
 from backtesting import *
@@ -42,9 +41,9 @@ if __name__ == "__main__":
         portfolio = sorted_signal_factors[["date", "tickersymbol"]].copy()
 
         in_sample_portfolios = portfolio[portfolio["date"].between(from_date, to_date)]
-        in_sample_portfolios.to_csv(f"stat/portfolio/{key}_portfolio.csv", index=False)
+        in_sample_portfolios.to_csv(f"stat/portfolio/{key}.csv", index=False)
         bt = Backtesting(in_sample_portfolios, daily_data, 60, top)
         print("Backtesting...")
         assets = bt.strategy(amt_each_stock=2e4)
-        assets.to_csv(f"stat/asset/{key}_asset.csv", index=False)
+        assets.to_csv(f"stat/asset/{key}.csv", index=False)
         

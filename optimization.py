@@ -12,19 +12,16 @@ from util.constant import INCLUDED_CODES
 
 class OptunaCallBack:
     def __init__(self) -> None:
-        logging.basicConfig(filename="stat/opitmization.log", format='%(message)s', filemode='w')
+        logging.basicConfig(filename="stat/optimization.log.csv", format='%(message)s', filemode='w')
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
         self.logger = logger
+        self.logger.info(f"number,llb,lub,value")
     
     def __call__(self, study: optuna.study.Study, trial: optuna.trial.FrozenTrial) -> None:
-        trial_data = {
-            'trial_number': trial.number,
-            'params': trial.params,
-            'value': trial.value,
-            'best': study.best_trial.params
-        }
-        self.logger.info(trial_data)
+        llb = trial.params["llb"]
+        lub = llb + trial.params["delta"]
+        self.logger.info(f"{trial.number},{llb},{lub},{trial.value}")
 
 
 if __name__ == "__main__":
@@ -65,4 +62,4 @@ if __name__ == "__main__":
 
     optunaCallBack = OptunaCallBack()
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=100, callbacks=[optunaCallBack])
+    study.optimize(objective, n_trials=1000, callbacks=[optunaCallBack])
