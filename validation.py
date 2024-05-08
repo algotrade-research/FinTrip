@@ -40,7 +40,7 @@ if __name__ == "__main__":
         lub = row["lub"]
 
         filtered_technical_factors = technical_factors[technical_factors["median-liq"].between(llb, lub)]
-        signal_factors = merging([technical_factors, financial_factors], columns=["year", "quarter", "tickersymbol"])
+        signal_factors = merging([filtered_technical_factors, financial_factors], columns=["year", "quarter", "tickersymbol"])
         sorted_signal_factors = signal_factors.sort_values(by=["date", "rsi", "tickersymbol"], ascending=[True, False, True]).groupby("date").head(top)
         portfolio = sorted_signal_factors[["date", "tickersymbol"]].copy()
 
