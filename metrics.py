@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from data.service import *
-
+from visualization import *
 
 def sharpe(asset):
     if len(asset) <= 1:
@@ -67,6 +67,21 @@ class Metrics():
 
         return index["sharpe-ratio-index"].mean(), portfolio["sharpe-ratio"].mean()
     
+    def visualize_sharpe(self, path):
+        portfolio = self.sharpe_portfolio_df()
+        index = self.sharpe_index_df()
+        merged = pd.merge(index, portfolio, on=["date"])
+        visualize_with_index(merged["date"], 
+                             merged["sharpe-ratio"], 
+                             merged["sharpe-ratio-index"], 
+                             title="Daily Sharpe Ratio",
+                             x_label="date",
+                             y_label="sharpe ratio",
+                             path=path
+                             )
+        
+        return merged[["date", "sharpe-ratio-index", "sharpe-ratio"]].copy()
+
     def mdd_index_df(self):
         mdd_index_data = self._init_index(mdd)
         rolling_mdd_index_data = self.index_data.copy()
@@ -126,7 +141,21 @@ class Metrics():
         index = self.ar_index_df()
 
         return index["ar-index"].min(), index["ar-index"].max(), portfolio["ar"].min(), portfolio["ar"].max()
-
+    
+    def visualize_ar(self, path):
+        portfolio = self.ar_portfolio_df()
+        index = self.ar_index_df()
+        merged = pd.merge(index, portfolio, on=["date"])
+        visualize_with_index(merged["date"], 
+                             merged["ar"], 
+                             merged["ar-index"], 
+                             title="Daily Absolute Return",
+                             x_label="date",
+                             y_label="accumulation return",
+                             path=path
+                             )
+        
+        return merged[["date", "ar-index", "ar"]].copy()
     
     def monthly_return_df(self):
         # monthly_return = 
@@ -148,6 +177,10 @@ if __name__ == "__main__":
         index_data = index_data.astype({"open": float, "close": float})
 
         metrics = Metrics(asset=assets, index_data=index_data)
+
+        # visualization
+        sharpe_visualization = metrics.visualize_sharpe(path=f"stat/sharpe/{key}.png")
+        ar_visualization = metrics.visualize_ar(path=f"stat/ar/{key}.png")
         
         esi, esp = metrics.expected_sharpe()
         mi, mp = metrics.max_mdd()
