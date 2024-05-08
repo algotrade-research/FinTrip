@@ -10,6 +10,8 @@ def visualize(x, y, x_label, y_label, title, path, size=(15, 10)):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.savefig(path)
+    plt.clf()
+
 
 def visualize_with_index(dates, y_p, y_i, title, x_label, y_label, path, size=(15, 10)):
     fig = plt.figure(figsize=size)
@@ -24,3 +26,5 @@ def visualize_with_index(dates, y_p, y_i, title, x_label, y_label, path, size=(1
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.savefig(path)
+    plt.clf()
+

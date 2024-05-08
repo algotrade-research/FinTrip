@@ -1,40 +1,8 @@
-import numpy as np
 import pandas as pd
+
 from data.service import *
-from visualization import *
-
-def sharpe(asset):
-    if len(asset) <= 1:
-        return None
-
-    daily_return = asset.iloc[1:].to_numpy() / asset.iloc[:-1].to_numpy() - 1
-    risk_free_rate = 0.03
-
-    annual_std = np.sqrt(252) * np.std(daily_return)
-    if annual_std == 0:
-        return None
-
-    annual_return = 252 * np.mean(daily_return) - risk_free_rate
-    sharpe = annual_return / annual_std
-    return sharpe
-
-def mdd(asset):
-    df = pd.DataFrame(asset.values, columns=["unrealized-asset"])
-    df['peak'] = df.apply(lambda row: df.loc[:row.name, 'unrealized-asset'].max(), axis=1)
-    df['drawdown'] = df['unrealized-asset']/df['peak'] - 1
-
-    mdd = df['drawdown'].min() * 100
-    return mdd
-
-def positive_percentage(asset, benchmark):
-    ac_return = asset.iloc[:].to_numpy() / asset.iloc[0] - 1
-
-    return len(ac_return[ac_return > benchmark]) / len(ac_return)
-
-def absolute_return(asset):
-    ar = asset.iloc[-1] / asset.iloc[0] - 1
-
-    return ar
+from util.visualization import *
+from util.metric_func import *
 
 class Metrics():
     def __init__(self, asset, index_data = None, index_window = 61):
@@ -157,10 +125,34 @@ class Metrics():
         
         return merged[["date", "ar-index", "ar"]].copy()
     
-    def monthly_return_df(self):
-        # monthly_return = 
-        pass
-    
+    def monthly_return_portfolio_df(self):
+        monthly_return = self.asset.groupby("start-date")["unrealized-asset"].apply(expected_monthly_return).reset_index().rename(columns={"unrealized-asset": "monthly-return"}).rename(columns={"start-date": "date"})
+        
+        return monthly_return
+
+    def monthly_return_index(self):
+        monthly_return_index_data = self._init_index(expected_monthly_return)
+        rolling_monthly_return_index_data = self.index_data.copy()
+        rolling_monthly_return_index_data["monthly-return-index"] = monthly_return_index_data
+        rolling_monthly_return_index_data = rolling_monthly_return_index_data.dropna()
+
+        return rolling_monthly_return_index_data
+
+    def monthly_return(self):
+        portfolio = self.monthly_return_portfolio_df()
+        index = self.monthly_return_index()
+
+        return index["monthly-return-index"].mean(), portfolio["monthly-return"].mean()
+
+    def no_stocks(self, portfolio, path):
+        trading_dates = self.index_data["date"]
+        count = portfolio.groupby("date").count().reset_index().rename(columns={"tickersymbol": "no-stocks"})
+        merge = pd.merge(trading_dates, count, on=["date"], how="left")
+        merge = merge.fillna(0)
+        count = merge["no-stocks"].value_counts()
+        count.plot(kind="bar", title="no stocks frequency", xlabel="number of stocks", ylabel="days").get_figure().savefig(path)
+
+        return count
 
 if __name__ == "__main__":
     keys = ["eps", "gm", "quick-ratio", "roe", "turnover-inv", "combine"]
@@ -182,13 +174,21 @@ if __name__ == "__main__":
         sharpe_visualization = metrics.visualize_sharpe(path=f"stat/sharpe/{key}.png")
         ar_visualization = metrics.visualize_ar(path=f"stat/ar/{key}.png")
         
+        # no stocks
+        portfolio = pd.read_csv(f"stat/portfolio/{key}_portfolio.csv")
+        portfolio["date"] = pd.to_datetime(portfolio["date"]).dt.date
+        no_stocks = metrics.no_stocks(portfolio, path=f"stat/no-stocks/{key}.png")
+
+        # metrics
         esi, esp = metrics.expected_sharpe()
         mi, mp = metrics.max_mdd()
         ip, pp = metrics.pp(benchmark=0.05)
         ar_index_min, ar_index_max, ar_portfolio_min, ar_portfolio_max = metrics.ar()
+        monthly_return_index, monthly_return_portfolio = metrics.monthly_return()
 
         print(key)
         print("sharpe index", esi, "sharpe portfolio", esp)
         print("max mdd index", mi, "max mdd index", mp)
         print("positive percentage index", ip, "positive percentage porfolio", pp)
         print("min - max absolute retrun index", ar_index_min, ar_index_max, "min - max absolute return portfolio", ar_portfolio_min, ar_portfolio_max)
+        print("monthly return index", monthly_return_index, "monthly return portfolio", monthly_return_portfolio)
