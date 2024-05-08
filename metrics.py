@@ -199,7 +199,7 @@ if __name__ == "__main__":
 
         print(key)
         print("sharpe index", esi, "sharpe portfolio", esp)
-        print("max mdd index", mi, "max mdd index", mp)
+        print("max mdd index", mi, "max mdd portfolio", mp)
         print("positive percentage index", ip, "positive percentage porfolio", pp)
         print("min, max, mean absolute retrun index", ar_index_min, ar_index_max, ar_index_mean)
         print("min, max, mean absolute retrun portfolio", ar_portfolio_min, ar_portfolio_max, ar_portfolio_mean)
