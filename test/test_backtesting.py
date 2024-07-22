@@ -2,7 +2,7 @@ from datetime import datetime
 import pandas as pd
 import unittest
 
-from backtesting import *
+from backtesting.backtesting import *
 
 class TestBacktesting(unittest.TestCase):
     def setUp(self):

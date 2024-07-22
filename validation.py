@@ -1,6 +1,6 @@
 import pandas as pd
 
-from backtesting import *
+from backtesting.backtesting import *
 from util.utils import *
 from data.service import *
 from filters.financial import *
@@ -13,7 +13,7 @@ if __name__ == "__main__":
     distinct = optimized.groupby(["llb", "lub"]).head(1).reset_index()
     distinct = distinct.nlargest(5, columns=["value"])
 
-    start, from_date, to_date, end = get_date("2019-01-01", "2022-01-01", look_back=120, forward_period=90)
+    start, from_date, to_date, end = get_date(optimization_params["from_date"], optimization_params["to_date"], look_back=120, forward_period=90)
     print("Fetching Data...")
     financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES)
 

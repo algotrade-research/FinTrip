@@ -1,0 +1,15 @@
+{
+  "from_date": "2017-01-01",
+  "to_date": "2019-01-01",
+  "sell_fee": 0.0006,
+  "buy_fee": 0.0006,
+  "risk_fee_rate": 0.03,
+  "no_stock": 3,
+  "combination": ["turnover-inv", "gm"],
+  "rsi_look_back": 60,
+  "rsi_lb": 0.6,
+  "rsi_ub": 0.7,
+  "liquidity_look_back": 20,
+  "liquidity_lb": 1e6,
+  "liquidity_ub": 5e6
+}

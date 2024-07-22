@@ -1,0 +1,8 @@
+{
+  "from_date": "2017-01-01",
+  "to_date": "2019-01-01",
+  "financial_ratios": ["eps", "quick-ratio", "gm", "roe", "turnover-inv"],
+  "rsi_range": [0.6, 0.7],
+  "liquidity_rank": [1e6, 5e6],
+  "no_trial": 10000
+}

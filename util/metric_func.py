@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
+from config import *
 
-def sharpe(asset):
+def sharpe(asset, risk_free_rate):
     if len(asset) <= 1:
         return None
 
     daily_return = asset.iloc[1:].to_numpy() / asset.iloc[:-1].to_numpy() - 1
-    risk_free_rate = 0.03
 
     annual_std = np.sqrt(252) * np.std(daily_return)
     if annual_std == 0:

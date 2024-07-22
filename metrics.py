@@ -19,7 +19,7 @@ class Metrics:
         return self.index_data
     
     def sharpe_index_df(self):
-        sharpe_index_data = self._init_index(sharpe)
+        sharpe_index_data = self._init_index(sharpe, (0.03,))
         rolling_sharpe_index_data = self.index_data.copy()
         rolling_sharpe_index_data["sharpe-ratio-index"] = sharpe_index_data
         rolling_sharpe_index_data = rolling_sharpe_index_data.dropna()
@@ -27,7 +27,7 @@ class Metrics:
         return rolling_sharpe_index_data
     
     def sharpe_portfolio_df(self):
-        sharpe_df = self.asset.groupby("start-date")["unrealized-asset"].apply(sharpe).reset_index().rename(columns={"unrealized-asset": "sharpe-ratio"}).rename(columns={"start-date": "date"})
+        sharpe_df = self.asset.groupby("start-date")["unrealized-asset"].apply(sharpe, risk_free_rate=backtesting_config["risk_fee_rate"]).reset_index().rename(columns={"unrealized-asset": "sharpe-ratio"}).rename(columns={"start-date": "date"})
         return sharpe_df
     
     def expected_sharpe(self):

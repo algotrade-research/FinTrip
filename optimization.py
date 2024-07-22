@@ -6,7 +6,7 @@ from filters.financial import *
 from filters.technical import *
 from metrics import *
 from data.service import *
-from backtesting import *
+from backtesting.backtesting import *
 from util.constant import INCLUDED_CODES
 
 

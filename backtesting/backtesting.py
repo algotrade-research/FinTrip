@@ -1,8 +1,12 @@
 import pandas as pd
 import numpy as np
+from config.config import *
 
 class Backtesting:
-    def __init__(self, portfolio, daily_data, period, no_firms, buy_fee = 0.0006, sell_fee = 0.0006):
+    def __init__(self, portfolio, daily_data, period, no_firms, 
+                 buy_fee = backtesting_config["buy_fee"], 
+                 sell_fee = backtesting_config["sell_fee"]
+                 ):
         self.portfolio = portfolio
         self.daily_data = daily_data
         self.period = period

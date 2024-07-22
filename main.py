@@ -3,12 +3,17 @@ from util.constant import INCLUDED_CODES
 from util.utils import *
 from filters.financial import *
 from filters.technical import *
-from backtesting import *
+from backtesting.backtesting import *
 from metrics import *
+from config import *
 
 if __name__ == "__main__":
     # date config
-    start, from_date, to_date, end = get_date("2017-01-01", "2019-01-01", look_back=120, forward_period=90)
+    start, from_date, to_date, end = get_date(backtesting_config["from_date"], 
+                                              backtesting_config["to_date"], 
+                                              forward_period=90,
+                                              look_back=120
+                                              )
 
     print("Fetching Data...")
     # financial data
@@ -28,14 +33,20 @@ if __name__ == "__main__":
     technical_signal = TechnicalSignal(daily_data)
 
     print("Calculating Technical Signal...")
-    technical_factors  = technical_signal.filter_signal([("liquidity", 20, 1e6, 5e6), ("rsi", 60, 0.6, 0.7)])
+    technical_factors  = technical_signal.filter_signal([
+        ("liquidity", backtesting_config["liquidity_look_back"], backtesting_config["liquidity_lb"], backtesting_config["liquidity_ub"]), 
+        ("rsi", backtesting_config["rsi_look_back"], backtesting_config["rsi_lb"], backtesting_config["rsi_ub"])
+    ])
 
     print("Calculating Financial Signal...")
     keys = ["eps", "quick-ratio", "gm", "roe", "turnover-inv", "combine"]
     for key in keys:
-        financial_factors = financial_signal.filter_median([key]) if key != "combine" else financial_signal.filter_median(["turnover-inv", "gm"])
+        if key == "combine" and backtesting_config["combination"] == []:
+            continue
 
-        top = 3
+        financial_factors = financial_signal.filter_median([key]) if key != "combine" else financial_signal.filter_median(backtesting_config["combination"])
+
+        top = backtesting_config["no_stock"]
         signal_factors = merging([technical_factors, financial_factors], columns=["year", "quarter", "tickersymbol"])
         sorted_signal_factors = signal_factors.sort_values(by=["date", "rsi", "tickersymbol"], ascending=[True, False, True]).groupby("date").head(top)
         portfolio = sorted_signal_factors[["date", "tickersymbol"]].copy()
