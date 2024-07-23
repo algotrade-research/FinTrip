@@ -25,7 +25,8 @@ class OptunaCallBack:
 
 
 if __name__ == "__main__":
-    start, from_date, to_date, end = get_date("2017-01-01", "2019-01-01", look_back=120, forward_period=90)
+    start, from_date, to_date, end = get_date(optimization_params["from_date"], 
+                                              optimization_params["to_date"], look_back=120, forward_period=90)
 
     print("Fetching Data...")
     financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES)
@@ -38,14 +39,21 @@ if __name__ == "__main__":
     technical_signal = TechnicalSignal(daily_data)
 
     print("Calculating Technical Signal...")
-    technical_factors = technical_signal.filter_signal([("liquidity", 20, None, None), ("rsi", 60, 0.6, 0.7)])
+    technical_factors = technical_signal.filter_signal([("liquidity", 20, None, None), ("rsi", 60, optimization_params["rsi_lb"], optimization_params["rsi_ub"])])
     print("Calculating Financial Signal...")
-    financial_factors = financial_signal.filter_median(["eps", "quick-ratio", "gm", "roe"])
+    financial_factors = financial_signal.filter_median(optimization_params["combination"])
 
 
     def objective(trial):
-        llb = trial.suggest_int(name="llb", low=1e6, high=7e6, step = 5e5)
-        delta_high = trial.suggest_int(name="delta", low=5e5, high=3e6, step = 5e5)
+        llb = trial.suggest_int(name="llb", 
+                                low = optimization_params["llb_low"], 
+                                high = optimization_params["llb_high"], 
+                                step =  optimization_params["step"]
+                                )
+        delta_high = trial.suggest_int(name="delta", 
+                                       low = optimization_params["delta_low"],
+                                       high = optimization_params["delta_high"], 
+                                       step = optimization_params["step"])
         filtered_technical_factors = technical_factors[technical_factors["median-liq"].between(llb, llb + delta_high)]
 
         signal_factors = merging([filtered_technical_factors, financial_factors], columns=["year", "quarter", "tickersymbol"])
@@ -62,4 +70,4 @@ if __name__ == "__main__":
 
     optunaCallBack = OptunaCallBack()
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=1000, callbacks=[optunaCallBack])
+    study.optimize(objective, n_trials=optimization_params["trial"], callbacks=[optunaCallBack])

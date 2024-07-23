@@ -1,8 +1,15 @@
 {
   "from_date": "2017-01-01",
   "to_date": "2019-01-01",
-  "financial_ratios": ["eps", "quick-ratio", "gm", "roe", "turnover-inv"],
-  "rsi_range": [0.6, 0.7],
-  "liquidity_rank": [1e6, 5e6],
-  "no_trial": 10000
+  "os_from_date": "2019-01-02",
+  "os_to_date": "2021-12-31",
+  "rsi_lb": 0.6,
+  "rsi_ub": 0.7,
+  "combination": ["turnover-inv", "gm"],
+  "step": 5e5,
+  "llb_low": 1e6,
+  "llb_high": 7e6,
+  "delta_low": 5e5,
+  "delta_high": 3e6,
+  "trial": 20
 }

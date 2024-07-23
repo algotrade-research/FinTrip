@@ -13,7 +13,7 @@ if __name__ == "__main__":
     distinct = optimized.groupby(["llb", "lub"]).head(1).reset_index()
     distinct = distinct.nlargest(5, columns=["value"])
 
-    start, from_date, to_date, end = get_date(optimization_params["from_date"], optimization_params["to_date"], look_back=120, forward_period=90)
+    start, from_date, to_date, end = get_date(optimization_params["os_from_date"], optimization_params["os_to_date"], look_back=120, forward_period=90)
     print("Fetching Data...")
     financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES)
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     technical_signal = TechnicalSignal(daily_data)
 
     print("Calculating Technical Signal...")
-    technical_factors = technical_signal.filter_signal([("liquidity", 20, None, None), ("rsi", 60, 0.6, 0.7)])
+    technical_factors = technical_signal.filter_signal([("liquidity", 20, None, None), ("rsi", 60, optimization_params["rsi_lb"], optimization_params["rsi_ub"])])
     financial_factors = financial_signal.filter_median(["turnover-inv", "gm"])
 
     for _, row in distinct.iterrows():
@@ -44,9 +44,9 @@ if __name__ == "__main__":
         sorted_signal_factors = signal_factors.sort_values(by=["date", "rsi", "tickersymbol"], ascending=[True, False, True]).groupby("date").head(top)
         portfolio = sorted_signal_factors[["date", "tickersymbol"]].copy()
 
-        in_sample_portfolios = portfolio[portfolio["date"].between(from_date, to_date)]
-        in_sample_portfolios.to_csv(f"stat/portfolio/{llb}_{lub}.csv", index=False)
-        bt = Backtesting(in_sample_portfolios, daily_data, 60, top)
+        os_sample_portfolios = portfolio[portfolio["date"].between(from_date, to_date)]
+        os_sample_portfolios.to_csv(f"stat/portfolio/{llb}_{lub}.csv", index=False)
+        bt = Backtesting(os_sample_portfolios, daily_data, 60, top)
         print("Backtesting...")
         assets = bt.strategy(amt_each_stock=2e4)
         assets.to_csv(f"stat/asset/{llb}_{lub}.csv", index=False)
