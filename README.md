@@ -77,7 +77,7 @@ python main.py
 ```
 python metrics.py mode=backtesting
 ```
-- [Sharpe ratio](smart-beta/stat/in-sample/sharpe/combine.png), [acummilative return](smart-beta/stat/in-sample/ar/combine.png) and [Number of stock each day](smart-beta/stat/in-sample/no-stocks/combine.png) are stored in ```stat/in-sample``` folder.
+- [Sharpe ratio](stat/in-sample/sharpe/combine.png), [acummilative return](stat/in-sample/ar/combine.png) and [Number of stock each day](stat/in-sample/no-stocks/combine.png) are stored in ```stat/in-sample``` folder.
 - The console will print the result of metrics of combinanation of financial ratios
   
 <center>
