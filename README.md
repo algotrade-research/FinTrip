@@ -1,7 +1,7 @@
 # Introduction
 This project recommends 3 stocks daily in the Vietnam market by utilizing fundamental signals and technical signals calculated from financial statement and daily price data respectively.
 ## Method
-- We filter out the firms by the recommend financial ratios with its liquidity
+- We filter out the firms by the recommended financial ratios with its liquidity
 - The financial ratios include:
   - eps
   - quick ratio
@@ -73,9 +73,9 @@ python main.py
 }
 ```
 ## Evaluation
-- To print and export the metric images, run the ```metrics.py``` file with ```mode=backtesting```.
+- To print and export the metric images, run the ```metrics.py``` file with ```backtesting``` mode.
 ```
-python metrics.py mode=backtesting
+python metrics.py backtesting
 ```
 - [Sharpe ratio](stat/in-sample/sharpe/combine.png), [acummilative return](stat/in-sample/ar/combine.png) and [Number of stock each day](stat/in-sample/no-stocks/combine.png) are stored in ```stat/in-sample``` folder.
 - The console will print the result of metrics of combinanation of financial ratios
@@ -121,7 +121,7 @@ python optimization.py
 python validation.py
 ```
 -  The asset result will be stored in ```stat/out-sample/asset``` the same as backtesting process.
-- To get the metric of these result run the command metric with ```mode=validation```
+- To get the metric of these result run the command metric with ```validation``` mode
 ```
-python metrics.py mode=validation
+python metrics.py validation
 ```
