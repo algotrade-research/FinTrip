@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     print("Calculating Technical Signal...")
     technical_factors = technical_signal.filter_signal([("liquidity", 20, None, None), ("rsi", 60, optimization_params["rsi_lb"], optimization_params["rsi_ub"])])
-    financial_factors = financial_signal.filter_median(["turnover-inv", "gm"])
+    financial_factors = financial_signal.filter_median(optimization_params["combination"])
 
     for _, row in distinct.iterrows():
         top = 3
@@ -45,8 +45,8 @@ if __name__ == "__main__":
         portfolio = sorted_signal_factors[["date", "tickersymbol"]].copy()
 
         os_sample_portfolios = portfolio[portfolio["date"].between(from_date, to_date)]
-        os_sample_portfolios.to_csv(f"stat/portfolio/{llb}_{lub}.csv", index=False)
+        os_sample_portfolios.to_csv(f"stat/out-sample/portfolio/{llb}_{lub}.csv", index=False)
         bt = Backtesting(os_sample_portfolios, daily_data, 60, top)
-        print("Backtesting...")
+        print("Validating...")
         assets = bt.strategy(amt_each_stock=2e4)
-        assets.to_csv(f"stat/asset/{llb}_{lub}.csv", index=False)
+        assets.to_csv(f"stat/out-sample/asset/{llb}_{lub}.csv", index=False)

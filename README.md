@@ -1,5 +1,14 @@
 # Introduction
 This project recommends 3 stocks daily in the Vietnam market by utilizing fundamental signals and technical signals calculated from financial statement and daily price data respectively.
+## Method
+- We filter out the firms by the recommend financial ratios with its liquidity
+- The financial ratios include:
+  - eps
+  - quick ratio
+  - gross margin
+  - roe
+  - turnover inventory
+- The portfolio in each day also depends on the exponential RSI indicator
 
 # Feature
 - [x] Generate Mock Data
@@ -15,11 +24,11 @@ There are two types of data which are the financial statement and daily trading 
 - RSI upper bound and lower bound are in range [0, 1]
 - Liquidity upper bound, lower bound and step are amount in VND devide by 1000
 # Installation
-- Requirement: pip, venv
+- Requirement: pip, virtualenv
 - Create and source new virtual environment in the current working directory with command
 ```
 python3 -m virtualenv venv
-source .venv/bin/activate
+source venv/bin/activate
 ```
 - Install the dependencies by:
 ```
@@ -44,7 +53,7 @@ source .env
 ```
 python main.py
 ```
-- The daily asset data will be stored in folder ```stat/asset```. 
+- The daily asset data will be stored in folder ```stat/in-sample/asset```. 
 - Paramters are stored in ```parameter/backtesting_parameter.json```
 ```
 {
@@ -64,19 +73,22 @@ python main.py
 }
 ```
 ## Evaluation
-To print and export the metric images, run the ```metrics.py``` file.
+- To print and export the metric images, run the ```metrics.py``` file with ```mode=backtesting```.
 ```
-python metrics.py
+python metrics.py mode=backtesting
 ```
-## Unit testing
-- For testing all function, run the command. The duration for the testing of all functions is nearly 200 second. 
-```
-python -m unittest
-```
-- For testing a group of function
-```
-python -m unittest test/test_financial.py
-```
+- [Sharpe ratio](smart-beta/stat/in-sample/sharpe/combine.png), [acummilative return](smart-beta/stat/in-sample/ar/combine.png) and [Number of stock each day](smart-beta/stat/in-sample/no-stocks/combine.png) are stored in ```stat/in-sample``` folder.
+- The console will print the result of metrics of combinanation of financial ratios
+  
+<center>
+
+|           | ESR   | MMMD     | PPP     | MAR     | MIR      | MER    | EMR    |
+|-----------|-------|----------|---------|---------|----------|--------|--------|
+| Portfolio | 0.229 | -9.160%  | 52.644% | 54.834% | -32.122% | 2.157% | 0.597% |
+| Index     | 1.512 | -25.319% | 67.807% | 33.306% | -25.319% | 4.281% | 1.305% |
+
+</center>
+
 # Optimization
 - Optuna is used for the optimization process. More detail of optuna can be found [here](https://optuna.org/)
 - We use sharpe ratio as our objective function
@@ -108,8 +120,8 @@ python optimization.py
 ```
 python validation.py
 ```
--  The asset result will be stored in ```stat/asset``` the same as backtesting process.
-- To get the metric of these result run the command metric again
+-  The asset result will be stored in ```stat/out-sample/asset``` the same as backtesting process.
+- To get the metric of these result run the command metric with ```mode=validation```
 ```
-python metrics.py
+python metrics.py mode=validation
 ```

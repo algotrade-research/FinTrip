@@ -1,6 +1,7 @@
 
 import logging
 import optuna
+from optuna.samplers import RandomSampler
 
 from filters.financial import *
 from filters.technical import *
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     technical_factors = technical_signal.filter_signal([("liquidity", 20, None, None), ("rsi", 60, optimization_params["rsi_lb"], optimization_params["rsi_ub"])])
     print("Calculating Financial Signal...")
     financial_factors = financial_signal.filter_median(optimization_params["combination"])
-
+    print(f"Number of trails: {optimization_params['no_trials']}")
 
     def objective(trial):
         llb = trial.suggest_int(name="llb", 
@@ -69,5 +70,5 @@ if __name__ == "__main__":
 
 
     optunaCallBack = OptunaCallBack()
-    study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=optimization_params["trial"], callbacks=[optunaCallBack])
+    study = optuna.create_study(sampler=RandomSampler(seed=2024), direction='maximize')
+    study.optimize(objective, n_trials=optimization_params["no_trials"], callbacks=[optunaCallBack])

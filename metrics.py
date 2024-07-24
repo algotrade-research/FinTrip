@@ -1,4 +1,5 @@
 import os
+import argparse
 import pandas as pd
 
 from data.service import *
@@ -164,11 +165,24 @@ class Metrics:
         return count
 
 if __name__ == "__main__":
-    path = os.path.join(os.path.dirname(__file__), 'stat/asset')
+    parser = argparse.ArgumentParser("stock filter")
+    parser.add_argument("mode", help="backtesting or validation")
+    args = parser.parse_args()
+    
+    asset_path = "stat/out-sample/asset" if args.mode == "validation" else "stat/in-sample/asset"
+    ar_path = "stat/out-sample/ar" if args.mode == "validation" else "stat/in-sample/ar"
+    no_stock_path = "stat/out-sample/no-stocks" if args.mode == "validation" else "stat/in-sample/no-stocks"
+    portfolio_path = "stat/out-sample/portfolio" if args.mode == "validation" else "stat/in-sample/portfolio"
+    sharpe_path = "stat/out-sample/sharpe" if args.mode == "validation" else "stat/in-sample/sharpe"
+
+    path = os.path.join(os.path.dirname(__file__), asset_path)
     files = [os.path.splitext(file)[0] for file in os.listdir(path)]
 
     for key in files:
-        assets = pd.read_csv(f"stat/asset/{key}.csv")
+        if key != "combine" and args.mode == "backtesting":
+            continue
+
+        assets = pd.read_csv(f"{asset_path}/{key}.csv")
         assets["start-date"] = pd.to_datetime(assets["start-date"]).dt.date
         assets["curr-date"] = pd.to_datetime(assets["curr-date"]).dt.date
         assets = assets.sort_values(by=["start-date", "curr-date"])
@@ -182,13 +196,13 @@ if __name__ == "__main__":
         metrics = Metrics(asset=assets, index_data=index_data)
 
         # visualization
-        sharpe_visualization = metrics.visualize_sharpe(path=f"stat/sharpe/{key}.png")
-        ar_visualization = metrics.visualize_ar(path=f"stat/ar/{key}.png")
+        sharpe_visualization = metrics.visualize_sharpe(path=f"{sharpe_path}/{key}.png")
+        ar_visualization = metrics.visualize_ar(path=f"{ar_path}/{key}.png")
         
         # no stocks
-        portfolio = pd.read_csv(f"stat/portfolio/{key}.csv")
+        portfolio = pd.read_csv(f"{portfolio_path}/{key}.csv")
         portfolio["date"] = pd.to_datetime(portfolio["date"]).dt.date
-        no_stocks = metrics.no_stocks(portfolio, path=f"stat/no-stocks/{key}.png")
+        no_stocks = metrics.no_stocks(portfolio, path=f"{no_stock_path}/{key}.png")
 
         # metrics
         esi, esp = metrics.expected_sharpe()
