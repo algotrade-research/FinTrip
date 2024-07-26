@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 
 from data.service import *
+from util.utils import get_date
 from util.visualization import *
 from util.metric_func import *
 
@@ -188,9 +189,19 @@ if __name__ == "__main__":
         assets = assets.sort_values(by=["start-date", "curr-date"])
 
         # get VNINDEX data
-        from_date = assets["start-date"].iloc[0]
-        to_date = assets["curr-date"].iloc[-1]
-        index_data = data_service.get_index_data(from_date, to_date)
+        start, from_date, to_date, end = get_date(optimization_params["os_from_date"], 
+                                              optimization_params["os_to_date"], 
+                                              forward_period=90,
+                                              look_back=120
+                                              ) \
+                                        if args.mode == "validation" else \
+                                        get_date(backtesting_config["from_date"], 
+                                              backtesting_config["to_date"], 
+                                              forward_period=90,
+                                              look_back=120
+                                        )
+    
+        index_data = data_service.get_index_data(from_date, end)
         index_data = index_data.astype({"open": float, "close": float})
 
         metrics = Metrics(asset=assets, index_data=index_data)

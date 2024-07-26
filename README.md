@@ -1,5 +1,5 @@
 # Introduction
-This project recommends 3 stocks daily in the Vietnam market by utilizing fundamental signals and technical signals calculated from financial statement and daily price data respectively.
+This project recommends 3 stocks daily in the Vietnam market by utilizing fundamental signals and technical signals calculated from financial statement and daily price data respectively. The stocks are hold in 60 trading days period.
 ## Method
 - We filter out the firms by the recommended financial ratios with its liquidity
 - The financial ratios include:
@@ -125,3 +125,16 @@ python validation.py
 ```
 python metrics.py validation
 ```
+- With random seed is 2024 the output of the validation in optimized parameters are:
+
+<center>
+  
+|           | ESR    | MMMD     | PPP     | MAR     | MIR      | MER     | EMR     |
+|-----------|--------|----------|---------|---------|----------|---------|---------|
+| [7, 9]    | -1.015 | -7.201%  | 29.411% | 11.725% | -14.392% | -1.870% | -1.182% |
+| [7, 10]   | -0.455 | -6.531%  | 40.384% | 11.725% | -14.392% | -0.425% | -0.571% |
+| [7, 9.5]  | -0.760 | -6.713%  | 33.695% | 11.725% | -14.392% | -1.256% | -0.893% |
+| [6.5, 9]  | -1.241 | -6.920%  | 27.731% | 11.725% | -14.392% | -2.193% | -0.973% |
+| [6.5, 9.5]| -1.043 | -6.700%  | 30.952% | 11.725% | -14.392% | -1.726% | -0.774% |
+| Index     | -0.578 | -33.511% | 18.548% | 12.376% | -31.291% | -1.580% | -0.385% |
+<center>
