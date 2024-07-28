@@ -6,7 +6,7 @@ from backtesting.backtesting import *
 
 class TestBacktesting(unittest.TestCase):
     def setUp(self):
-        daily_data = pd.read_csv("mock/daily_data.csv")
+        daily_data = pd.read_csv("mock/in-sample/daily_data.csv")
         daily_data["date"] = pd.to_datetime(daily_data["date"]).dt.date
         self.daily_data = daily_data
     

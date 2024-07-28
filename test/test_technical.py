@@ -7,7 +7,7 @@ from filters.technical import *
 
 class TestTechnical(unittest.TestCase):
     def setUp(self) -> None:
-        technical_data = pd.read_csv("mock/daily_data.csv")
+        technical_data = pd.read_csv("mock/in-sample/daily_data.csv")
         technical_data["date"] = pd.to_datetime(technical_data["date"]).dt.date
         self.technical_data = technical_data
 

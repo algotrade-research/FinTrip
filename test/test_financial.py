@@ -6,7 +6,7 @@ import unittest
 
 class TestFinancial(unittest.TestCase):
     def setUp(self) -> None:
-        financial_data = pd.read_csv("mock/financial_data.csv")
+        financial_data = pd.read_csv("mock/in-sample/financial_data.csv")
         self.financial_data = financial_data
 
     def test_eps(self):
