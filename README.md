@@ -48,6 +48,7 @@ PASSWORD=<password>
 ```
 source .env
 ```
+- If you don't create ```.env``` file then the code will use data in ```mock``` folder
 ## Data initiation
 - To create the daily asset data with backtesting parameter run the ```main.py``` file
 ```

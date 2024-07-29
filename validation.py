@@ -15,15 +15,15 @@ if __name__ == "__main__":
 
     start, from_date, to_date, end = get_date(optimization_params["os_from_date"], optimization_params["os_to_date"], look_back=120, forward_period=90)
     print("Fetching Data...")
-    financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES)
+    financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES, is_backtesting=False)
 
     # price data
-    daily_data = data_service.get_daily_data(start, end)
+    daily_data = data_service.get_daily_data(start, end, is_backtesting=False)
     daily_data["date"] = pd.to_datetime(daily_data["date"]).dt.date
     daily_data = daily_data.astype({"liq": float, "close": float})
 
     # VNINDEX data
-    index_data = data_service.get_index_data(from_date, end)
+    index_data = data_service.get_index_data(from_date, end, is_backtesting=False)
     index_data["date"] = pd.to_datetime(index_data["date"]).dt.date
     index_data = index_data.astype({"open": float, "close": float})
     

@@ -31,10 +31,10 @@ if __name__ == "__main__":
 
     print("Fetching Data...")
     # financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES)
-    financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES, is_file=True, is_backtesting=True)
+    financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES)
 
     # daily_data = data_service.get_daily_data(start, end)
-    daily_data = data_service.get_daily_data(start, end, is_file=True, is_backtesting=True)
+    daily_data = data_service.get_daily_data(start, end)
     daily_data["date"] = pd.to_datetime(daily_data["date"]).dt.date
     daily_data = daily_data.astype({"liq": float, "close": float})
 

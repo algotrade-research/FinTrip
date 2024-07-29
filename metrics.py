@@ -201,8 +201,8 @@ if __name__ == "__main__":
                                               look_back=120
                                         )
     
-        index_data = data_service.get_index_data(from_date, end, is_file=True, is_backtesting=False) if args.mode == "validation" \
-                else data_service.get_index_data(from_date, end, is_file=True, is_backtesting=True)
+        index_data = data_service.get_index_data(from_date, end, is_backtesting=False) if args.mode == "validation" \
+                else data_service.get_index_data(from_date, end, is_backtesting=True)
         
         index_data = index_data.astype({"open": float, "close": float})
 
