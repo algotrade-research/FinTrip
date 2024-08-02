@@ -50,6 +50,9 @@ source .env
 ```
 - If you don't create ```.env``` file then the code will use data in ```mock``` folder
 - Change the name of the ```stat-example``` folder to ```stat``` or create a new one with the same structure
+- By default the code is run with file mode. To specify the path of the data file:
+  - Create ```mock``` folder
+  - Download and extract the in-sample, out-sample data files and place it in this folder
 ## Data initiation
 - To create the daily asset data with backtesting parameter run the ```main.py``` file
 ```
