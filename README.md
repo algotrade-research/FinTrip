@@ -54,6 +54,10 @@ source .env
   - Create ```mock``` folder
   - Download and extract the in-sample, out-sample data files and place it in this folder
 ## Data initiation
+- To create all required folders run the command
+```
+python create_folders.py
+```
 - To create the daily asset data with backtesting parameter run the ```main.py``` file
 ```
 python main.py
