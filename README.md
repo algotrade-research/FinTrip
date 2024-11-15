@@ -1,6 +1,20 @@
+# Abstract
+- TBU
 # Introduction
 This project recommends 3 stocks daily in the Vietnam market by utilizing fundamental signals and technical signals calculated from financial statement and daily price data respectively. The stocks are hold in 60 trading days period.
-## Method
+
+# Related Work (Background)
+- TBU
+- Optional
+
+# Data
+There are two types of data which are the financial statement and daily trading data. For the calculation, the data is collected from:
+- start date: the beginning date of daily data includeing the look back data for the signal calculation
+- end date: the end date of daily data including the last date for the return calculation
+- RSI upper bound and lower bound are in range [0, 1]
+- Liquidity upper bound, lower bound and step are amount in VND devide by 1000
+
+# Method
 - We filter out the firms by the recommended financial ratios with its liquidity
 - The financial ratios include:
   - eps
@@ -10,20 +24,17 @@ This project recommends 3 stocks daily in the Vietnam market by utilizing fundam
   - turnover inventory
 - The portfolio in each day also depends on the exponential RSI indicator
 
-# Feature
+# Experiment
+(Describe the experiment here)
+
+## Feature
 - [x] Generate Mock Data
 - [x] Validate Test Case: Financial, Technical and Backtesting
 - [x] Optimize hyperparameters
 - [x] Evaluate backtesting and optimization
 - [ ] Paper trade
 
-# Data explaination
-There are two types of data which are the financial statement and daily trading data. For the calculation, the data is collected from:
-- start date: the beginning date of daily data includeing the look back data for the signal calculation
-- end date: the end date of daily data including the last date for the return calculation
-- RSI upper bound and lower bound are in range [0, 1]
-- Liquidity upper bound, lower bound and step are amount in VND devide by 1000
-# Installation
+## Installation
 - Requirement: pip, virtualenv
 - Create and source new virtual environment in the current working directory with command
 ```
@@ -34,7 +45,6 @@ source venv/bin/activate
 ```
 pip install -r requirements.txt
 ```
-# Getting started
 ## Database Environment
 - Create ```.env``` file and enter your data source configuration with the format
 ```
@@ -53,6 +63,7 @@ source .env
 - By default the code is run with file mode. To specify the path of the data file:
   - Create ```mock``` folder
   - Download and extract the in-sample, out-sample data files and place it in this folder
+
 ## Data initiation
 - To create all required folders run the command
 ```
@@ -81,7 +92,7 @@ python main.py
   "liquidity_ub": 5e6
 }
 ```
-## Evaluation
+# Result
 - To print and export the metric images, run the ```metrics.py``` file with ```backtesting``` mode.
 ```
 python metrics.py backtesting
@@ -146,4 +157,11 @@ python metrics.py validation
 | [6.5, 9]  | -1.241 | -6.920%  | 27.731% | 11.725% | -14.392% | -2.193% | -0.973% |
 | [6.5, 9.5]| -1.043 | -6.700%  | 30.952% | 11.725% | -14.392% | -1.726% | -0.774% |
 | Index     | -0.578 | -33.511% | 18.548% | 12.376% | -31.291% | -1.580% | -0.385% |
-<center>
+
+</center>
+
+# Conclusion
+TBU
+
+# Reference
+TBU
