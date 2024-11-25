@@ -1,11 +1,10 @@
 # Abstract
-- TBU
+The objective of this project is to examine the relationship between financial signals and the buy-and-hold return rate. Specifically, the study will focus on sorting firms based on their financial statement and selecting entry points using technical signals. Each day, three stocks will be selected for purchase, with the positions held for a three-month trading period.
 # Introduction
 This project recommends 3 stocks daily in the Vietnam market by utilizing fundamental signals and technical signals calculated from financial statement and daily price data respectively. The stocks are hold in 60 trading days period.
 
 # Related Work (Background)
-- TBU
-- Optional
+The project examines various types of resources to identify efficient financial ratios. For many years, numerous studies have explored the relationship between abnormal returns and fundamental analysis strategies. Jeffery and Brian introduced their financial ratios in their work Abnormal Returns to a Fundamental Analysis Strategy (see [link](https://www.jstor.org/stable/248340)). The use of financial ratios remains relevant today and is commonly referred to as smart beta (see [link](https://hub.algotrade.vn/knowledge-hub/phuong-phap-trong-so-duoc-su-dung-trong-chien-luoc-beta-vuot-troi/)).
 
 # Data
 There are two types of data which are the financial statement and daily trading data. For the calculation, the data is collected from:
@@ -14,37 +13,6 @@ There are two types of data which are the financial statement and daily trading 
 - RSI upper bound and lower bound are in range [0, 1]
 - Liquidity upper bound, lower bound and step are amount in VND devide by 1000
 
-# Method
-- We filter out the firms by the recommended financial ratios with its liquidity
-- The financial ratios include:
-  - eps
-  - quick ratio
-  - gross margin
-  - roe
-  - turnover inventory
-- The portfolio in each day also depends on the exponential RSI indicator
-
-# Experiment
-(Describe the experiment here)
-
-## Feature
-- [x] Generate Mock Data
-- [x] Validate Test Case: Financial, Technical and Backtesting
-- [x] Optimize hyperparameters
-- [x] Evaluate backtesting and optimization
-- [ ] Paper trade
-
-## Installation
-- Requirement: pip, virtualenv
-- Create and source new virtual environment in the current working directory with command
-```
-python3 -m virtualenv venv
-source venv/bin/activate
-```
-- Install the dependencies by:
-```
-pip install -r requirements.txt
-```
 ## Database Environment
 - Create ```.env``` file and enter your data source configuration with the format
 ```
@@ -62,7 +30,7 @@ source .env
 - Change the name of the ```stat-example``` folder to ```stat``` or create a new one with the same structure
 - By default the code is run with file mode. To specify the path of the data file:
   - Create ```mock``` folder
-  - Download and extract the in-sample, out-sample data files and place it in this folder
+  - Download and extract the in-sample, out-sample data files and place it in this folder [Link]()
 
 ## Data initiation
 - To create all required folders run the command
@@ -92,12 +60,60 @@ python main.py
   "liquidity_ub": 5e6
 }
 ```
-# Result
+
+# Implementation
+- We filter out the firms by the recommended financial ratios with its liquidity
+- The financial ratios include:
+  - eps
+  - quick ratio
+  - gross margin
+  - roe
+  - turnover inventory
+- The portfolio in each day also depends on the exponential RSI indicator
+
+## Feature
+- [x] Generate Mock Data
+- [x] Validate Test Case: Financial, Technical and Backtesting
+- [x] Optimize hyperparameters
+- [x] Evaluate backtesting and optimization
+- [ ] Paper trade
+
+## Installation
+- Requirement: pip, virtualenv
+- Create and source new virtual environment in the current working directory with command
+```
+python3 -m virtualenv venv
+source venv/bin/activate
+```
+- Install the dependencies by:
+```
+pip install -r requirements.txt
+```
+
+# In-sample Backtesting
 - To print and export the metric images, run the ```metrics.py``` file with ```backtesting``` mode.
 ```
 python metrics.py backtesting
 ```
-- [Sharpe ratio](stat/in-sample/sharpe/combine.png), [acummilative return](stat/in-sample/ar/combine.png) and [Number of stock each day](stat/in-sample/no-stocks/combine.png) are stored in ```stat/in-sample``` folder.
+- [Sharpe ratio](stat-example/in-sample/sharpe/combine.png), [acummilative return](stat-example/in-sample/ar/combine.png) and [Number of stock each day](sta-example/in-sample/no-stocks/combine.png) are stored in ```stat/in-sample``` folder.
+- The parameters of backtesting is stored in file ```parameter/backtesting_parameter.json```
+```
+{
+  "from_date": "2017-01-01",
+  "to_date": "2019-01-01",
+  "sell_fee": 0.0006,
+  "buy_fee": 0.0006,
+  "risk_fee_rate": 0.03,
+  "no_stock": 3,
+  "combination": ["turnover-inv", "gm"],
+  "rsi_look_back": 60,
+  "rsi_lb": 0.6,
+  "rsi_ub": 0.7,
+  "liquidity_look_back": 20,
+  "liquidity_lb": 1e6,
+  "liquidity_ub": 5e6
+}
+```
 - The console will print the result of metrics of combinanation of financial ratios
   
 <center>
@@ -136,11 +152,31 @@ python optimization.py
 ```
 - The result of optimization is stored at ```stat/optimization.log.csv```
 - Each itteration in the process takes nearly 2s => 1000 trials will take a half of hour
-- For validation the out sample data, modify the ```os_from_date``` and ```os_to_date``` in the ```optimization_parameter.json``` file and run 
+
+# Out-of-sample Backtesting
+For validation the out sample data, modify the ```os_from_date``` and ```os_to_date``` in the ```optimization_parameter.json``` file and run 
 ```
 python validation.py
 ```
 -  The asset result will be stored in ```stat/out-sample/asset``` the same as backtesting process.
+- The setting of the validation is stored in file ```parameter/optimization_parameter.json```
+```
+{
+  "from_date": "2017-01-01",
+  "to_date": "2019-01-01",
+  "os_from_date": "2019-01-02",
+  "os_to_date": "2021-12-31",
+  "rsi_lb": 0.6,
+  "rsi_ub": 0.7,
+  "combination": ["turnover-inv", "gm"],
+  "step": 5e5,
+  "llb_low": 1e6,
+  "llb_high": 7e6,
+  "delta_low": 5e5,
+  "delta_high": 3e6,
+  "trial": 20
+}
+```
 - To get the metric of these result run the command metric with ```validation``` mode
 ```
 python metrics.py validation
@@ -160,8 +196,11 @@ python metrics.py validation
 
 </center>
 
+
 # Conclusion
-TBU
+Although the financial ratios are selected from various sources, they have proven to be inefficient in the Vietnamese market. The strategy of benchmarking the portfolio should be refined, moving beyond the use of average values. 
 
 # Reference
-TBU
+- [1] Jeffery S. Abarbanell, Brian J. Bushee. "Abnormal Returns to a Fundamental Analysis Strategy", The Accounting Review, Vol. In: 73, No. 1 (Jan., 1998), pp. 19-45
+- [2] Victor L. Bernard, Jacob K. Thomas. "Post-Earnings-Announcement Drift: Delayed Price Response or Risk Premium?". In: Journal of Accounting Research, Vol. 27, Current Studies on The Information Content of Accounting Earnings (1989), pp. 1-36
+- [3] Algotrade. Weighting Methods Used in Smart-Beta Strategy. [Link](https://hub.algotrade.vn/knowledge-hub/weighting-methods-used-in-smart-beta-strategy/)
