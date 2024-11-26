@@ -3,6 +3,25 @@ The objective of this project is to examine the relationship between financial s
 # Introduction
 This project recommends 3 stocks daily in the Vietnam market by utilizing fundamental signals and technical signals calculated from financial statement and daily price data respectively. The stocks are hold in 60 trading days period.
 
+## Feature
+- [x] Generate Mock Data for unit testing 
+- [x] Validate Test Case: Financial, Technical Signal and Backtesting
+- [x] Optimize hyperparameters
+- [x] Evaluate backtesting and optimization
+- [ ] Paper trade
+
+## Installation
+- Requirement: pip, virtualenv
+- Create and source new virtual environment in the current working directory with command
+```
+python3 -m virtualenv venv
+source venv/bin/activate
+```
+- Install the dependencies by:
+```
+pip install -r requirements.txt
+```
+
 # Related Work (Background)
 The project examines various types of resources to identify efficient financial ratios. For many years, numerous studies have explored the relationship between abnormal returns and fundamental analysis strategies. Jeffery and Brian introduced their financial ratios in their work Abnormal Returns to a Fundamental Analysis Strategy (see [link](https://www.jstor.org/stable/248340)). The use of financial ratios remains relevant today and is commonly referred to as smart beta (see [link](https://hub.algotrade.vn/knowledge-hub/phuong-phap-trong-so-duoc-su-dung-trong-chien-luoc-beta-vuot-troi/)).
 
@@ -30,7 +49,7 @@ source .env
 - Change the name of the ```stat-example``` folder to ```stat``` or create a new one with the same structure
 - By default the code is run with file mode. To specify the path of the data file:
   - Create ```mock``` folder
-  - Download and extract the in-sample, out-sample data files and place it in this folder [Link]()
+  - Download and extract the in-sample, out-sample data files and place it in this folder [Link](https://drive.google.com/drive/folders/11YOHtzsivwJsOG23PbCyhlJjxroaR_zP?usp=drive_link)
 
 ## Data initiation
 - To create all required folders run the command
@@ -42,24 +61,6 @@ python create_folders.py
 python main.py
 ```
 - The daily asset data will be stored in folder ```stat/in-sample/asset```. 
-- Paramters are stored in ```parameter/backtesting_parameter.json```
-```
-{
-  "from_date": "2017-01-01",
-  "to_date": "2019-01-01",
-  "sell_fee": 0.0006,
-  "buy_fee": 0.0006,
-  "risk_fee_rate": 0.03,
-  "no_stock": 3,
-  "combination": ["turnover-inv", "gm"],
-  "rsi_look_back": 60,
-  "rsi_lb": 0.6,
-  "rsi_ub": 0.7,
-  "liquidity_look_back": 20,
-  "liquidity_lb": 1e6,
-  "liquidity_ub": 5e6
-}
-```
 
 # Implementation
 - We filter out the firms by the recommended financial ratios with its liquidity
@@ -70,25 +71,6 @@ python main.py
   - roe
   - turnover inventory
 - The portfolio in each day also depends on the exponential RSI indicator
-
-## Feature
-- [x] Generate Mock Data
-- [x] Validate Test Case: Financial, Technical and Backtesting
-- [x] Optimize hyperparameters
-- [x] Evaluate backtesting and optimization
-- [ ] Paper trade
-
-## Installation
-- Requirement: pip, virtualenv
-- Create and source new virtual environment in the current working directory with command
-```
-python3 -m virtualenv venv
-source venv/bin/activate
-```
-- Install the dependencies by:
-```
-pip install -r requirements.txt
-```
 
 # In-sample Backtesting
 - To print and export the metric images, run the ```metrics.py``` file with ```backtesting``` mode.

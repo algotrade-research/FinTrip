@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 
+
 def visualize(x, y, x_label, y_label, title, path, size=(15, 10)):
     fig = plt.figure(figsize=size)
     plt.xticks(rotation=45)
@@ -27,4 +28,3 @@ def visualize_with_index(dates, y_p, y_i, title, x_label, y_label, path, size=(1
     plt.ylabel(y_label)
     plt.savefig(path)
     plt.close()
-

@@ -13,9 +13,16 @@ if __name__ == "__main__":
     distinct = optimized.groupby(["llb", "lub"]).head(1).reset_index()
     distinct = distinct.nlargest(5, columns=["value"])
 
-    start, from_date, to_date, end = get_date(optimization_params["os_from_date"], optimization_params["os_to_date"], look_back=120, forward_period=90)
+    start, from_date, to_date, end = get_date(
+        optimization_params["os_from_date"],
+        optimization_params["os_to_date"],
+        look_back=120,
+        forward_period=90,
+    )
     print("Fetching Data...")
-    financial_data = data_service.get_financial_data(start.year, to_date.year, INCLUDED_CODES, is_backtesting=False)
+    financial_data = data_service.get_financial_data(
+        start.year, to_date.year, INCLUDED_CODES, is_backtesting=False
+    )
 
     # price data
     daily_data = data_service.get_daily_data(start, end, is_backtesting=False)
@@ -26,26 +33,46 @@ if __name__ == "__main__":
     index_data = data_service.get_index_data(from_date, end, is_backtesting=False)
     index_data["date"] = pd.to_datetime(index_data["date"]).dt.date
     index_data = index_data.astype({"open": float, "close": float})
-    
+
     financial_signal = FinancialSignal(financial_data)
     technical_signal = TechnicalSignal(daily_data)
 
     print("Calculating Technical Signal...")
-    technical_factors = technical_signal.filter_signal([("liquidity", 20, None, None), ("rsi", 60, optimization_params["rsi_lb"], optimization_params["rsi_ub"])])
-    financial_factors = financial_signal.filter_median(optimization_params["combination"])
+    technical_factors = technical_signal.filter_signal(
+        [
+            ("liquidity", 20, None, None),
+            ("rsi", 60, optimization_params["rsi_lb"], optimization_params["rsi_ub"]),
+        ]
+    )
+    financial_factors = financial_signal.filter_median(
+        optimization_params["combination"]
+    )
 
     for _, row in distinct.iterrows():
         top = 3
         llb = row["llb"]
         lub = row["lub"]
 
-        filtered_technical_factors = technical_factors[technical_factors["median-liq"].between(llb, lub)]
-        signal_factors = merging([filtered_technical_factors, financial_factors], columns=["year", "quarter", "tickersymbol"])
-        sorted_signal_factors = signal_factors.sort_values(by=["date", "rsi", "tickersymbol"], ascending=[True, False, True]).groupby("date").head(top)
+        filtered_technical_factors = technical_factors[
+            technical_factors["median-liq"].between(llb, lub)
+        ]
+        signal_factors = merging(
+            [filtered_technical_factors, financial_factors],
+            columns=["year", "quarter", "tickersymbol"],
+        )
+        sorted_signal_factors = (
+            signal_factors.sort_values(
+                by=["date", "rsi", "tickersymbol"], ascending=[True, False, True]
+            )
+            .groupby("date")
+            .head(top)
+        )
         portfolio = sorted_signal_factors[["date", "tickersymbol"]].copy()
 
         os_sample_portfolios = portfolio[portfolio["date"].between(from_date, to_date)]
-        os_sample_portfolios.to_csv(f"stat/out-sample/portfolio/{llb}_{lub}.csv", index=False)
+        os_sample_portfolios.to_csv(
+            f"stat/out-sample/portfolio/{llb}_{lub}.csv", index=False
+        )
         bt = Backtesting(os_sample_portfolios, daily_data, 60, top)
         print("Validating...")
         assets = bt.strategy(amt_each_stock=2e4)

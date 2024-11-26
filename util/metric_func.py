@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from config import *
 
+
 def sharpe(asset, risk_free_rate):
     if len(asset) <= 1:
         return None
@@ -19,10 +20,12 @@ def sharpe(asset, risk_free_rate):
 
 def mdd(asset):
     df = pd.DataFrame(asset.values, columns=["unrealized-asset"])
-    df['peak'] = df.apply(lambda row: df.loc[:row.name, 'unrealized-asset'].max(), axis=1)
-    df['drawdown'] = df['unrealized-asset']/df['peak'] - 1
+    df["peak"] = df.apply(
+        lambda row: df.loc[: row.name, "unrealized-asset"].max(), axis=1
+    )
+    df["drawdown"] = df["unrealized-asset"] / df["peak"] - 1
 
-    mdd = df['drawdown'].min() * 100
+    mdd = df["drawdown"].min() * 100
     return mdd
 
 
@@ -40,5 +43,9 @@ def absolute_return(asset):
 
 def expected_monthly_return(asset):
     df = pd.DataFrame(asset.values, columns=["unrealized-asset"])
-    monthly_return = df["unrealized-asset"].rolling(window=20).apply(lambda x: x.iloc[-1] / x.iloc[0] - 1)
+    monthly_return = (
+        df["unrealized-asset"]
+        .rolling(window=20)
+        .apply(lambda x: x.iloc[-1] / x.iloc[0] - 1)
+    )
     return 100 * monthly_return.mean()

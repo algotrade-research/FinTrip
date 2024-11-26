@@ -7,19 +7,30 @@ from util.utils import get_date
 from util.visualization import *
 from util.metric_func import *
 
+
 class Metrics:
-    def __init__(self, asset, index_data = None, index_window = 61):
+    def __init__(self, asset, index_data=None, index_window=61):
         self.index_data = index_data
         self.index_window = index_window
-        self.asset = asset.groupby(["start-date", "curr-date"])["unrealized-asset"].last(1).reset_index()
+        self.asset = (
+            asset.groupby(["start-date", "curr-date"])["unrealized-asset"]
+            .last(1)
+            .reset_index()
+        )
 
     def _init_index(self, apply_func, args=()):
         if self.index_data is not None:
-            indexer = pd.api.indexers.FixedForwardWindowIndexer(window_size=self.index_window)
-            return self.index_data["close"].rolling(window = indexer).apply(apply_func, args=args)
+            indexer = pd.api.indexers.FixedForwardWindowIndexer(
+                window_size=self.index_window
+            )
+            return (
+                self.index_data["close"]
+                .rolling(window=indexer)
+                .apply(apply_func, args=args)
+            )
 
         return self.index_data
-    
+
     def sharpe_index_df(self):
         sharpe_index_data = self._init_index(sharpe, (0.03,))
         rolling_sharpe_index_data = self.index_data.copy()
@@ -27,30 +38,37 @@ class Metrics:
         rolling_sharpe_index_data = rolling_sharpe_index_data.dropna()
 
         return rolling_sharpe_index_data
-    
+
     def sharpe_portfolio_df(self):
-        sharpe_df = self.asset.groupby("start-date")["unrealized-asset"].apply(sharpe, risk_free_rate=backtesting_config["risk_fee_rate"]).reset_index().rename(columns={"unrealized-asset": "sharpe-ratio"}).rename(columns={"start-date": "date"})
+        sharpe_df = (
+            self.asset.groupby("start-date")["unrealized-asset"]
+            .apply(sharpe, risk_free_rate=backtesting_config["risk_fee_rate"])
+            .reset_index()
+            .rename(columns={"unrealized-asset": "sharpe-ratio"})
+            .rename(columns={"start-date": "date"})
+        )
         return sharpe_df
-    
+
     def expected_sharpe(self):
         portfolio = self.sharpe_portfolio_df()
         index = self.sharpe_index_df()
 
         return index["sharpe-ratio-index"].mean(), portfolio["sharpe-ratio"].mean()
-    
+
     def visualize_sharpe(self, path):
         portfolio = self.sharpe_portfolio_df()
         index = self.sharpe_index_df()
         merged = pd.merge(index, portfolio, on=["date"])
-        visualize_with_index(merged["date"], 
-                             merged["sharpe-ratio"], 
-                             merged["sharpe-ratio-index"], 
-                             title="Daily Sharpe Ratio",
-                             x_label="date",
-                             y_label="sharpe ratio",
-                             path=path
-                             )
-        
+        visualize_with_index(
+            merged["date"],
+            merged["sharpe-ratio"],
+            merged["sharpe-ratio-index"],
+            title="Daily Sharpe Ratio",
+            x_label="date",
+            y_label="sharpe ratio",
+            path=path,
+        )
+
         return merged[["date", "sharpe-ratio-index", "sharpe-ratio"]].copy()
 
     def mdd_index_df(self):
@@ -62,17 +80,23 @@ class Metrics:
         return rolling_mdd_index_data
 
     def mdd_portfolio_df(self):
-        mdds = self.asset.groupby("start-date")["unrealized-asset"].apply(mdd).reset_index().rename(columns={"unrealized-asset": "mdd"}).rename(columns={"start-date": "date"})
+        mdds = (
+            self.asset.groupby("start-date")["unrealized-asset"]
+            .apply(mdd)
+            .reset_index()
+            .rename(columns={"unrealized-asset": "mdd"})
+            .rename(columns={"start-date": "date"})
+        )
         mdds = mdds.dropna()
 
         return mdds
-    
+
     def max_mdd(self):
         portfolio = self.mdd_portfolio_df()
         index = self.mdd_index_df()
 
         return index["mdd-index"].min(), portfolio["mdd"].mean()
-    
+
     def pp_index_df(self, benchmark):
         pp_index_data = self._init_index(positive_percentage, args=(benchmark,))
         rolling_pp_index_data = self.index_data.copy()
@@ -80,25 +104,37 @@ class Metrics:
         rolling_pp_index_data = rolling_pp_index_data.dropna()
 
         return rolling_pp_index_data
-    
+
     def pp_portfolio_df(self, benchmark):
-        pp = self.asset.groupby("start-date")["unrealized-asset"].apply(lambda x: positive_percentage(x, benchmark)).reset_index().rename(columns={"unrealized-asset": "pp"}).rename(columns={"start-date": "date"})
-        
+        pp = (
+            self.asset.groupby("start-date")["unrealized-asset"]
+            .apply(lambda x: positive_percentage(x, benchmark))
+            .reset_index()
+            .rename(columns={"unrealized-asset": "pp"})
+            .rename(columns={"start-date": "date"})
+        )
+
         return pp
-    
+
     def pp(self, benchmark):
         portfolio = self.pp_portfolio_df(benchmark)
         index = self.pp_index_df(benchmark)
         i_positive = len(index[index["pp-index"] > 0]) / len(index)
         p_positive = len(portfolio[portfolio["pp"] > 0]) / len(portfolio)
-        
+
         return 100 * i_positive, 100 * p_positive
-    
+
     def ar_portfolio_df(self):
-        ar = self.asset.groupby("start-date")["unrealized-asset"].apply(absolute_return).reset_index().rename(columns={"unrealized-asset": "ar"}).rename(columns={"start-date": "date"})
-        
+        ar = (
+            self.asset.groupby("start-date")["unrealized-asset"]
+            .apply(absolute_return)
+            .reset_index()
+            .rename(columns={"unrealized-asset": "ar"})
+            .rename(columns={"start-date": "date"})
+        )
+
         return ar
-    
+
     def ar_index_df(self):
         ar_index_data = self._init_index(absolute_return)
         rolling_ar_index_data = self.index_data.copy()
@@ -111,40 +147,56 @@ class Metrics:
         portfolio = self.ar_portfolio_df()
         index = self.ar_index_df()
 
-        min_index =  index["ar-index"].min()
+        min_index = index["ar-index"].min()
         max_index = index["ar-index"].max()
         mean_index = index["ar-index"].mean()
-    
-        min_portfolio =  portfolio["ar"].min()
+
+        min_portfolio = portfolio["ar"].min()
         max_portfolio = portfolio["ar"].max()
         mean_portfolio = portfolio["ar"].mean()
-        
-        return min_index, max_index, mean_index, min_portfolio, max_portfolio, mean_portfolio
+
+        return (
+            min_index,
+            max_index,
+            mean_index,
+            min_portfolio,
+            max_portfolio,
+            mean_portfolio,
+        )
 
     def visualize_ar(self, path):
         portfolio = self.ar_portfolio_df()
         index = self.ar_index_df()
         merged = pd.merge(index, portfolio, on=["date"])
-        visualize_with_index(merged["date"], 
-                             merged["ar"], 
-                             merged["ar-index"], 
-                             title="Daily Absolute Return",
-                             x_label="date",
-                             y_label="accumulation return",
-                             path=path
-                             )
-        
+        visualize_with_index(
+            merged["date"],
+            merged["ar"],
+            merged["ar-index"],
+            title="Daily Absolute Return",
+            x_label="date",
+            y_label="accumulation return",
+            path=path,
+        )
+
         return merged[["date", "ar-index", "ar"]].copy()
-    
+
     def monthly_return_portfolio_df(self):
-        monthly_return = self.asset.groupby("start-date")["unrealized-asset"].apply(expected_monthly_return).reset_index().rename(columns={"unrealized-asset": "monthly-return"}).rename(columns={"start-date": "date"})
-        
+        monthly_return = (
+            self.asset.groupby("start-date")["unrealized-asset"]
+            .apply(expected_monthly_return)
+            .reset_index()
+            .rename(columns={"unrealized-asset": "monthly-return"})
+            .rename(columns={"start-date": "date"})
+        )
+
         return monthly_return
 
     def monthly_return_index(self):
         monthly_return_index_data = self._init_index(expected_monthly_return)
         rolling_monthly_return_index_data = self.index_data.copy()
-        rolling_monthly_return_index_data["monthly-return-index"] = monthly_return_index_data
+        rolling_monthly_return_index_data["monthly-return-index"] = (
+            monthly_return_index_data
+        )
         rolling_monthly_return_index_data = rolling_monthly_return_index_data.dropna()
 
         return rolling_monthly_return_index_data
@@ -157,24 +209,49 @@ class Metrics:
 
     def no_stocks(self, portfolio, path):
         trading_dates = self.index_data["date"]
-        count = portfolio.groupby("date").count().reset_index().rename(columns={"tickersymbol": "no-stocks"})
+        count = (
+            portfolio.groupby("date")
+            .count()
+            .reset_index()
+            .rename(columns={"tickersymbol": "no-stocks"})
+        )
         merge = pd.merge(trading_dates, count, on=["date"], how="left")
         merge = merge.fillna(0)
         count = merge["no-stocks"].value_counts()
-        count.plot(kind="bar", title="no stocks frequency", xlabel="number of stocks", ylabel="days").get_figure().savefig(path)
+        count.plot(
+            kind="bar",
+            title="no stocks frequency",
+            xlabel="number of stocks",
+            ylabel="days",
+        ).get_figure().savefig(path)
 
         return count
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("stock filter")
     parser.add_argument("mode", help="backtesting or validation")
     args = parser.parse_args()
-    
-    asset_path = "stat/out-sample/asset" if args.mode == "validation" else "stat/in-sample/asset"
+
+    asset_path = (
+        "stat/out-sample/asset" if args.mode == "validation" else "stat/in-sample/asset"
+    )
     ar_path = "stat/out-sample/ar" if args.mode == "validation" else "stat/in-sample/ar"
-    no_stock_path = "stat/out-sample/no-stocks" if args.mode == "validation" else "stat/in-sample/no-stocks"
-    portfolio_path = "stat/out-sample/portfolio" if args.mode == "validation" else "stat/in-sample/portfolio"
-    sharpe_path = "stat/out-sample/sharpe" if args.mode == "validation" else "stat/in-sample/sharpe"
+    no_stock_path = (
+        "stat/out-sample/no-stocks"
+        if args.mode == "validation"
+        else "stat/in-sample/no-stocks"
+    )
+    portfolio_path = (
+        "stat/out-sample/portfolio"
+        if args.mode == "validation"
+        else "stat/in-sample/portfolio"
+    )
+    sharpe_path = (
+        "stat/out-sample/sharpe"
+        if args.mode == "validation"
+        else "stat/in-sample/sharpe"
+    )
 
     path = os.path.join(os.path.dirname(__file__), asset_path)
     files = [os.path.splitext(file)[0] for file in os.listdir(path)]
@@ -189,21 +266,28 @@ if __name__ == "__main__":
         assets = assets.sort_values(by=["start-date", "curr-date"])
 
         # get VNINDEX data
-        start, from_date, to_date, end = get_date(optimization_params["os_from_date"], 
-                                              optimization_params["os_to_date"], 
-                                              forward_period=90,
-                                              look_back=120
-                                              ) \
-                                        if args.mode == "validation" else \
-                                        get_date(backtesting_config["from_date"], 
-                                              backtesting_config["to_date"], 
-                                              forward_period=90,
-                                              look_back=120
-                                        )
-    
-        index_data = data_service.get_index_data(from_date, end, is_backtesting=False) if args.mode == "validation" \
-                else data_service.get_index_data(from_date, end, is_backtesting=True)
-        
+        start, from_date, to_date, end = (
+            get_date(
+                optimization_params["os_from_date"],
+                optimization_params["os_to_date"],
+                forward_period=90,
+                look_back=120,
+            )
+            if args.mode == "validation"
+            else get_date(
+                backtesting_config["from_date"],
+                backtesting_config["to_date"],
+                forward_period=90,
+                look_back=120,
+            )
+        )
+
+        index_data = (
+            data_service.get_index_data(from_date, end, is_backtesting=False)
+            if args.mode == "validation"
+            else data_service.get_index_data(from_date, end, is_backtesting=True)
+        )
+
         index_data = index_data.astype({"open": float, "close": float})
 
         metrics = Metrics(asset=assets, index_data=index_data)
@@ -211,7 +295,7 @@ if __name__ == "__main__":
         # visualization
         sharpe_visualization = metrics.visualize_sharpe(path=f"{sharpe_path}/{key}.png")
         ar_visualization = metrics.visualize_ar(path=f"{ar_path}/{key}.png")
-        
+
         # no stocks
         portfolio = pd.read_csv(f"{portfolio_path}/{key}.csv")
         portfolio["date"] = pd.to_datetime(portfolio["date"]).dt.date
@@ -221,13 +305,35 @@ if __name__ == "__main__":
         esi, esp = metrics.expected_sharpe()
         mi, mp = metrics.max_mdd()
         ip, pp = metrics.pp(benchmark=0.05)
-        ar_index_min, ar_index_max, ar_index_mean, ar_portfolio_min, ar_portfolio_max, ar_portfolio_mean = metrics.ar()
+        (
+            ar_index_min,
+            ar_index_max,
+            ar_index_mean,
+            ar_portfolio_min,
+            ar_portfolio_max,
+            ar_portfolio_mean,
+        ) = metrics.ar()
         monthly_return_index, monthly_return_portfolio = metrics.monthly_return()
 
         print(key)
         print("sharpe index", esi, "sharpe portfolio", esp)
         print("max mdd index", mi, "max mdd portfolio", mp)
         print("positive percentage index", ip, "positive percentage porfolio", pp)
-        print("min, max, mean absolute retrun index", ar_index_min, ar_index_max, ar_index_mean)
-        print("min, max, mean absolute retrun portfolio", ar_portfolio_min, ar_portfolio_max, ar_portfolio_mean)
-        print("monthly return index", monthly_return_index, "monthly return portfolio", monthly_return_portfolio)
+        print(
+            "min, max, mean absolute retrun index",
+            ar_index_min,
+            ar_index_max,
+            ar_index_mean,
+        )
+        print(
+            "min, max, mean absolute retrun portfolio",
+            ar_portfolio_min,
+            ar_portfolio_max,
+            ar_portfolio_mean,
+        )
+        print(
+            "monthly return index",
+            monthly_return_index,
+            "monthly return portfolio",
+            monthly_return_portfolio,
+        )
