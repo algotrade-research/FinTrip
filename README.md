@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/PLUTUS-Compliance_Score_75%25-green)
+![Static Badge](https://img.shields.io/badge/PLUTUS-75%25-darkgreen)
 
 # Abstract
 The objective of this project is to examine the relationship between financial signals and the buy-and-hold return rate. Specifically, the study will focus on sorting firms based on their financial statement and selecting entry points using technical signals. Each day, three stocks will be selected for purchase, with the positions held for a three-month trading period.
